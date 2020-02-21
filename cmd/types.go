@@ -1,5 +1,24 @@
 package yagiq
 
+type yamlType int
+
+const (
+  String yamlType = iota
+  Integer
+  Dictionary
+  List
+)
+
+type yamlNode struct {
+  key string
+  valueType yamlType
+  stringVal string
+  intVal int
+  dictionaryVal map[string]*yamlNode
+  ListVal []*yamlNode
+  LineReference *listNode
+}
+
 type scanner interface{
   Scan() bool
   Text() string

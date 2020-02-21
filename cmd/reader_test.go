@@ -66,3 +66,18 @@ func TestGetLineIndentation(t *testing.T) {
     t.Errorf("expected to fail with 'illegal number of spaces for indentation' but error is nil")
   }
 }
+
+func TestMakeTree(t *testing.T) {
+  mockScanner := CreateMockScanner(dummyLines)
+  dummyList := ReadToList(mockScanner)
+  dummyTree, err := MakeTree(dummyList.head)
+  if err != nil {
+    t.Errorf("make tree returned an unexpeted error %s", err)
+  }
+  if dummyTree.key != "object" {
+    t.Errorf("head of tree keyname is %s; want 'object'", dummyTree.key)
+  }
+  if dummyTree.valueType != Dictionary {
+    t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.valueType)
+  }
+}

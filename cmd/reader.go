@@ -31,3 +31,7 @@ func GetLineIndentation(s string) (int, error) {
   }
   return indents, nil
 }
+
+func MakeTree(l *listNode) (*yamlNode, error) {
+  return nil, errors.New("not implemented")
+}
