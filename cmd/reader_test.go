@@ -1,27 +1,35 @@
 package yagiq
 
+import (
+  "testing"
+)
+
 type scanner struct {
   lines []string
   cursor int
 }
 
-func min(a, b int) {
+func min(a, b int) int {
   if (a > b) {
     return b
   }
   return a
 }
 
-func (s *scanner) Scan() {
-  if s.cursor == nil {
-    s.cursor = 0
-  } else {
-    s.cursor = min(s.cursor + 1, len(s.lines))
+func CreateMockScanner(lines []string) *scanner {
+  scanner := &scanner{
+    lines: lines,
+    cursor: -1,
   }
+  return scanner
 }
 
-func (s *scanner) Text() {
-  return lines[s.cursor]
+func (s *scanner) Scan() {
+  s.cursor = min(s.cursor + 1, len(s.lines))
+}
+
+func (s *scanner) Text() string {
+  return s.lines[s.cursor]
 }
 
 func TestReadToList(t *testing.T) {
