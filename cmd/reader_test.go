@@ -4,6 +4,12 @@ import (
   "testing"
 )
 
+var dummyLines = []string{
+  "object:",
+  "  key: \"value\"",
+  "  another: \"val2\"",
+}
+
 func CreateMockScanner(lines []string) *mockScanner {
   scanner := &mockScanner{
     lines: lines,
@@ -25,20 +31,19 @@ func (s *mockScanner) Text() string {
 }
 
 func TestReadToList(t *testing.T) {
-  dummyLines := []string{
-    "object:",
-    "  key: \"value\"",
-    "  another: \"val2\"",
-  }
   mockScanner := CreateMockScanner(dummyLines)
   lineList := ReadToList(mockScanner)
 
   firstLine := lineList.head
   if firstLine.content != dummyLines[0] {
-    t.Errorf("first line is \"%s\"; want \"object:\"", firstLine.content)
+    t.Errorf("first line is \"%s\"; want \"%s\"", firstLine.content, dummyLines[0])
   }
   secondLine := firstLine.next
   if secondLine.content != dummyLines[1] {
-    t.Errorf("second line is \"%s\"; want \"object:\"", secondLine.content)
+    t.Errorf("second line is \"%s\"; want \"%s\"", secondLine.content, dummyLines[1])
   }
 }
+
+// func TestGetLineIndentation(t *testing.T) {
+//
+// }
