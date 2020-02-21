@@ -44,6 +44,25 @@ func TestReadToList(t *testing.T) {
   }
 }
 
-// func TestGetLineIndentation(t *testing.T) {
-//
-// }
+func TestGetLineIndentation(t *testing.T) {
+  indent, err := GetLineIndentation(dummyLines[0]) //  "object:" (0)
+  if err != nil {
+    t.Errorf("indent for %s was not successful; returned with unexpeted error %s", dummyLines[0], err)
+  }
+  if indent != 0 {
+    t.Errorf("indent is %d; want 0", indent)
+  }
+
+  indent, err =  GetLineIndentation(dummyLines[1]) // "  key: \"value\"" (1)
+  if err != nil {
+    t.Errorf("indent for %s was not successful; returned with unexpeted error %s", dummyLines[1], err)
+  }
+  if indent != 1 {
+    t.Errorf("indent is %d; want 1", indent)
+  }
+
+  indent, err = GetLineIndentation(" invalid") // should return error
+  if err == nil {
+    t.Errorf("expected to fail with 'illegal number of spaces for indentation' but error is nil")
+  }
+}
