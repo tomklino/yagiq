@@ -66,7 +66,7 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
     result[keyName] = new(yamlNode)
 
     result[keyName].ValueType = String // TODO implement this
-    result[keyName].StringVal = "value"
+    result[keyName].StringVal = "value" // TODO implement this
     l = l.next
   }
 
