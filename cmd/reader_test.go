@@ -67,17 +67,40 @@ func TestGetLineIndentation(t *testing.T) {
   }
 }
 
+func TestGetKeyName(t *testing.T) {
+  result, err := getKeyName("  key:")
+  if err != nil {
+    t.Errorf("got error while trying to get key name: %s", err)
+  }
+  if result != "key" {
+    t.Errorf("expected 'key', got '%s'", result)
+  }
+}
+
 func TestMakeTree(t *testing.T) {
   mockScanner := CreateMockScanner(dummyLines)
   dummyList := ReadToList(mockScanner)
   dummyTree, err := MakeTree(dummyList.head)
   if err != nil {
     t.Errorf("make tree returned an unexpeted error %s", err)
+    return
   }
-  if dummyTree.key != "object" {
-    t.Errorf("head of tree keyname is %s; want 'object'", dummyTree.key)
+  if dummyTree.Key != "object" {
+    t.Errorf("head of tree keyname is %s; want 'object'", dummyTree.Key)
   }
-  if dummyTree.valueType != Dictionary {
-    t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.valueType)
+  if dummyTree.ValueType != Dictionary {
+    t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.ValueType)
+  }
+  if dummyTree.LineReference != dummyList.head {
+    t.Errorf("head of tree is not referencing the first line in the list")
+  }
+  if dummyTree.DictionaryVal["key"].ValueType != String {
+    t.Errorf("exptected the type of 'object.key' to be string")
+  }
+  if dummyTree.DictionaryVal["another"].ValueType != String {
+    t.Errorf("exptected the type of 'object.another' to be string")
+  }
+  if dummyTree.DictionaryVal["another"].StringVal != "val2" {
+    t.Errorf("exptected the value to 'objecty.another' to be 'val2' but got '%s'", dummyTree.DictionaryVal["another"].StringVal)
   }
 }

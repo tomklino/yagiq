@@ -10,11 +10,11 @@ const (
 )
 
 type yamlNode struct {
-  key string
-  valueType yamlType
-  stringVal string
-  intVal int
-  dictionaryVal map[string]*yamlNode
+  Key string
+  ValueType yamlType
+  StringVal string
+  IntVal int
+  DictionaryVal map[string]*yamlNode
   ListVal []*yamlNode
   LineReference *listNode
 }
