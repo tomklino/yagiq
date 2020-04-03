@@ -29,16 +29,18 @@ func TestIsLineIntegerKey(t *testing.T) {
 }
 
 func TestIsLineStringKey(t *testing.T) {
-  if isLineStringKey("key: value") != true {
-    t.Errorf("the line 'key: value' is a string key, but got false")
+  var stringTests = []struct{
+    in string
+    out bool
+  }{
+    {"key: value", true},
+    {"key: \"value\"", true},
+    {"key:", false},
+    {"key: 5", false},
   }
-  if isLineStringKey("key: \"chooo\"") != true {
-    t.Errorf("the line 'key: \"chooo\"' is a string key, but got false")
-  }
-  if isLineStringKey("key:") != false {
-    t.Errorf("the line 'key:' is not a string key, but got true")
-  }
-  if isLineStringKey("key: 5") != false {
-    t.Errorf("the line 'key: 5' is not a string key, but got true")
+  for _, test := range stringTests {
+    if isLineStringKey(test.in) != test.out {
+      t.Errorf("the line '%s' is exptected to be %v, but got %v", test.in, test.out, !test.out)
+    }
   }
 }
