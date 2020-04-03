@@ -4,17 +4,24 @@ import (
   "testing"
 )
 
+type detectorTestCase struct{
+  in string
+  out bool
+}
+
 func TestIsLineObjectKey(t *testing.T) {
-  if isLineObjectKey("something:") != true {
-    t.Errorf("Expected 'something:' to be true")
+  var objectTests = []detectorTestCase{
+    {"something:", true},
+  }
+  for _, test := range objectTests {
+    if isLineObjectKey(test.in) != test.out {
+      t.Errorf("line '%s' expected to be %v, but got %v", test.in, test.out, !test.out)
+    }
   }
 }
 
 func TestIsLineIntegerKey(t *testing.T) {
-  var integerTests = []struct{
-    in string
-    out bool
-  }{
+  var integerTests = []detectorTestCase{
     {"key: value", false},
     {"key: \"value\"", false},
     {"key:", false},
@@ -29,10 +36,7 @@ func TestIsLineIntegerKey(t *testing.T) {
 }
 
 func TestIsLineStringKey(t *testing.T) {
-  var stringTests = []struct{
-    in string
-    out bool
-  }{
+  var stringTests = []detectorTestCase{
     {"key: value", true},
     {"key: \"value\"", true},
     {"key:", false},
