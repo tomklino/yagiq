@@ -5,8 +5,11 @@ import (
 )
 
 func isLineObjectKey(s string) bool {
-  // TODO trim comments
-  return s[len(s)-1] == ':'
+  valString := strings.Trim(strings.Split(s, ":")[1], "\t ")
+  if len(valString) == 0 || valString == "{}" {
+    return true
+  }
+  return false
 }
 
 func isLineIntegerKey(s string) bool {

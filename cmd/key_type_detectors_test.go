@@ -12,6 +12,9 @@ type detectorTestCase struct{
 func TestIsLineObjectKey(t *testing.T) {
   var objectTests = []detectorTestCase{
     {"something:", true},
+    {"something: ", true},
+    {"something:{}", true},
+    {"something: {}", true},
   }
   for _, test := range objectTests {
     if isLineObjectKey(test.in) != test.out {
