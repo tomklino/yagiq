@@ -74,7 +74,7 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
       // TODO result[keyName].IntVal = <parsed int val>
     case isLineStringKey(l.content):
       result[keyName].ValueType = String
-      // TODO result[keyName].StringVal = <parsed string val>
+      result[keyName].StringVal = parseStringFromLine(l.content)
     }
     l = l.next
   }
