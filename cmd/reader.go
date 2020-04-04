@@ -39,7 +39,7 @@ func getKeyName(s string) (string, error) {
   if err != nil {
     return "", err
   }
-  return strings.Split(s[indent+1:], ":")[0], nil
+  return strings.Split(s[indent*2:], ":")[0], nil
 }
 
 func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
@@ -68,15 +68,20 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
     switch {
     case isLineObjectKey(l.content):
       result[keyName].ValueType = Dictionary
-      // TODO result[keyName].DictionaryVal = makeObject(...)
+      object, lineAfterObject, err := makeObject(l.next)
+      if err != nil {
+        return nil, nil, err
+      }
+      result[keyName].DictionaryVal = object
+      l = lineAfterObject
     case isLineIntegerKey(l.content):
       result[keyName].ValueType = Integer
       // TODO result[keyName].IntVal = <parsed int val>
     case isLineStringKey(l.content):
       result[keyName].ValueType = String
       result[keyName].StringVal = parseStringFromLine(l.content)
+      l = l.next
     }
-    l = l.next
   }
 
   if(indent > baseIndent) {
@@ -86,20 +91,30 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
 }
 
 func MakeTree(l *listNode) (*yamlNode, error) {
-  result := new(yamlNode)
+  yamlHead := new(yamlNode)
 
-  if(isLineObjectKey(l.content)) {
-    result.Key = "object" // TODO implement this
-    result.ValueType = Dictionary
-    result.LineReference = l
-    object, l, err := makeObject(l.next)
-    if err != nil {
-      return nil, err
-    }
-    result.DictionaryVal = object
-    if l == nil || l.next == nil {
-      return result, nil
-    }
+  yamlHead.LineReference = l
+  yamlHead.ValueType = Dictionary
+  object, l, err := makeObject(l)
+  yamlHead.DictionaryVal = object
+  if err != nil {
+    return nil, err
   }
-  return result, nil
+  if l != nil {
+    return nil, errors.New("unexpeted line at the end of the yaml")
+  }
+  // if(isLineObjectKey(l.content)) {
+  //   result.Key = "object" // TODO implement this
+  //   result.ValueType = Dictionary
+  //   result.LineReference = l
+  //   object, l, err := makeObject(l.next)
+  //   if err != nil {
+  //     return nil, err
+  //   }
+  //   result.DictionaryVal = object
+  //   if l == nil || l.next == nil {
+  //     return result, nil
+  //   }
+  // }
+  return yamlHead, nil
 }

@@ -68,12 +68,20 @@ func TestGetLineIndentation(t *testing.T) {
 }
 
 func TestGetKeyName(t *testing.T) {
-  result, err := getKeyName("  key:")
-  if err != nil {
-    t.Errorf("got error while trying to get key name: %s", err)
+  tests := []struct{
+    in string
+    out string
+  }{
+    {"  key:", "key"},
+    {"object:", "object"},
   }
-  if result != "key" {
-    t.Errorf("expected 'key', got '%s'", result)
+  for _, tst := range tests {
+    if res, err := getKeyName(tst.in); err != nil || res != tst.out {
+      if err != nil {
+        t.Errorf("did not expect and error while getting key for '%s', got '%s'", tst.in, err)
+      }
+      t.Errorf("exptected '%s' to output '%s', but got '%s'", tst.in, tst.out, res)
+    }
   }
 }
 
@@ -85,22 +93,24 @@ func TestMakeTree(t *testing.T) {
     t.Errorf("make tree returned an unexpeted error %s", err)
     return
   }
-  if dummyTree.Key != "object" {
-    t.Errorf("head of tree keyname is %s; want 'object'", dummyTree.Key)
-  }
   if dummyTree.ValueType != Dictionary {
     t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.ValueType)
   }
   if dummyTree.LineReference != dummyList.head {
     t.Errorf("head of tree is not referencing the first line in the list")
   }
-  if dummyTree.DictionaryVal["key"].ValueType != String {
+  if dummyTree.DictionaryVal["object"].ValueType != Dictionary {
+    t.Errorf("exptected the type of the key 'object' to be Dictionary, got %v", dummyTree.DictionaryVal["object"].ValueType)
+  }
+
+  dummyObject := dummyTree.DictionaryVal["object"].DictionaryVal
+  if dummyObject["key"].ValueType != String {
     t.Errorf("exptected the type of 'object.key' to be string")
   }
-  if dummyTree.DictionaryVal["another"].ValueType != String {
+  if dummyObject["another"].ValueType != String {
     t.Errorf("exptected the type of 'object.another' to be string")
   }
-  if dummyTree.DictionaryVal["another"].StringVal != "val2" {
+  if dummyObject["another"].StringVal != "val2" {
     t.Errorf("exptected the value to 'objecty.another' to be 'val2' but got '%s'", dummyTree.DictionaryVal["another"].StringVal)
   }
 }

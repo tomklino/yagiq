@@ -19,7 +19,7 @@ type yamlNode struct {
   LineReference *listNode
 }
 
-type scanner interface{
+type scanner interface {
   Scan() bool
   Text() string
 }
