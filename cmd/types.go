@@ -20,7 +20,7 @@ type yamlNode struct {
 }
 
 type listReader interface {
-  ReadNext() *listNode
+  ReadNext() (*listNode, bool)
 }
 
 type scanner interface {
