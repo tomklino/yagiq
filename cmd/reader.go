@@ -6,6 +6,7 @@ import (
   "fmt"
 )
 
+// TODO should return listReader
 func ReadToList(s scanner) *list {
   list := &list{}
   tracer := &list.head
@@ -42,6 +43,7 @@ func getKeyName(s string) (string, error) {
   return strings.Split(s[indent*2:], ":")[0], nil
 }
 
+// TODO should accept listReader instead of *listNode
 func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
   result := make(map[string]*yamlNode)
   baseIndent, err := GetLineIndentation(l.content)
@@ -90,6 +92,7 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
   return result, l, nil
 }
 
+// TODO should accept listReader instead of *listNode
 func MakeTree(l *listNode) (*yamlNode, error) {
   yamlHead := new(yamlNode)
 
