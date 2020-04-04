@@ -65,8 +65,17 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
     }
     result[keyName] = new(yamlNode)
 
-    result[keyName].ValueType = String // TODO implement this
-    result[keyName].StringVal = "value" // TODO implement this
+    switch {
+    case isLineObjectKey(l.content):
+      result[keyName].ValueType = Dictionary
+      // TODO result[keyName].DictionaryVal = makeObject(...)
+    case isLineIntegerKey(l.content):
+      result[keyName].ValueType = Integer
+      // TODO result[keyName].IntVal = <parsed int val>
+    case isLineStringKey(l.content):
+      result[keyName].ValueType = String
+      // TODO result[keyName].StringVal = <parsed string val>
+    }
     l = l.next
   }
 
