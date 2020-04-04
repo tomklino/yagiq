@@ -103,18 +103,5 @@ func MakeTree(l *listNode) (*yamlNode, error) {
   if l != nil {
     return nil, errors.New("unexpeted line at the end of the yaml")
   }
-  // if(isLineObjectKey(l.content)) {
-  //   result.Key = "object" // TODO implement this
-  //   result.ValueType = Dictionary
-  //   result.LineReference = l
-  //   object, l, err := makeObject(l.next)
-  //   if err != nil {
-  //     return nil, err
-  //   }
-  //   result.DictionaryVal = object
-  //   if l == nil || l.next == nil {
-  //     return result, nil
-  //   }
-  // }
   return yamlHead, nil
 }
