@@ -6,7 +6,7 @@ import (
 
 func TestReadNext(t *testing.T) {
   mockScanner := CreateMockScanner(dummyLines)
-  listReader := &FListReader{mockScanner}
+  listReader := NewFListReader(mockScanner)
   var firstLine, secondLine *listNode
   for i, line := range dummyLines {
     res, _ := listReader.ReadNext()

@@ -2,11 +2,17 @@ package yagiq
 
 type FListReader struct {
   scanner
+  list *list
+  tracer **listNode
+}
+
+func NewFListReader(s scanner) *FListReader {
+  list := &list{}
+  tracer := &list.head
+  return &FListReader{s, list, tracer}
 }
 
 func (f *FListReader) ReadNext() (*listNode, bool) {
-  // NOTE may need to add tracer or tailNode in closure to be able to link
-  //      last node to next node
   if !f.scanner.Scan() {
     return nil, false
   }
@@ -14,5 +20,7 @@ func (f *FListReader) ReadNext() (*listNode, bool) {
   result := &listNode{
     content: line,
   }
+  *f.tracer = result
+  f.tracer = &result.next
   return result, true
 }
