@@ -6,20 +6,6 @@ import (
   "fmt"
 )
 
-// TODO should return listReader
-// func ReadToList(s scanner) *list {
-//   list := &list{}
-//   tracer := &list.head
-//   for s.Scan() {
-//     currentNode := &listNode{
-//       content: s.Text(),
-//     }
-//     *tracer = currentNode
-//     tracer = &currentNode.next
-//   }
-//   return list
-// }
-
 func GetLineIndentation(s string) (int, error) {
   indents := 0
   for i := 0; i < len(s); i += 2 {

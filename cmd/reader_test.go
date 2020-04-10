@@ -16,20 +16,6 @@ func (s *mockScanner) Text() string {
   return s.lines[s.cursor]
 }
 
-// func TestReadToList(t *testing.T) {
-//   mockScanner := CreateMockScanner(dummyLines)
-//   lineList := ReadToList(mockScanner)
-//
-//   firstLine := lineList.head
-//   if firstLine.content != dummyLines[0] {
-//     t.Errorf("first line is \"%s\"; want \"%s\"", firstLine.content, dummyLines[0])
-//   }
-//   secondLine := firstLine.next
-//   if secondLine.content != dummyLines[1] {
-//     t.Errorf("second line is \"%s\"; want \"%s\"", secondLine.content, dummyLines[1])
-//   }
-// }
-
 func TestGetLineIndentation(t *testing.T) {
   indent, err := GetLineIndentation(dummyLines[0]) //  "object:" (0)
   if err != nil {
