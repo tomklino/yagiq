@@ -4,23 +4,24 @@ import (
   "testing"
 )
 
-func TestReadNext(t *testing.T) {
+func TestListScanner(t *testing.T) {
   mockScanner := CreateMockScanner(dummyLines)
-  listReader := NewFListReader(mockScanner)
+  listScanner := NewFListScanner(mockScanner)
   var firstLine, secondLine *listNode
   for i, line := range dummyLines {
-    res, _ := listReader.ReadNext()
-    if res.content != line {
-      t.Errorf("exptected to read '%s', got '%s'", line, res.content)
+    listScanner.Scan()
+    l := listScanner.Line()
+    if l.content != line {
+      t.Errorf("exptected to read '%s', got '%s'", line, l.content)
     }
     if i == 0 {
-      firstLine = res
+      firstLine = l
     }
     if i == 1 {
-      secondLine = res
+      secondLine = l
     }
   }
-  if _, ok := listReader.ReadNext(); ok != false {
+  if ok := listScanner.Scan(); ok != false {
     t.Errorf("expected ok to be false when reading after the last line, but got true")
   }
   if firstLine.next != secondLine {

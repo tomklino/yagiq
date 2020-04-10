@@ -16,19 +16,19 @@ func (s *mockScanner) Text() string {
   return s.lines[s.cursor]
 }
 
-func TestReadToList(t *testing.T) {
-  mockScanner := CreateMockScanner(dummyLines)
-  lineList := ReadToList(mockScanner)
-
-  firstLine := lineList.head
-  if firstLine.content != dummyLines[0] {
-    t.Errorf("first line is \"%s\"; want \"%s\"", firstLine.content, dummyLines[0])
-  }
-  secondLine := firstLine.next
-  if secondLine.content != dummyLines[1] {
-    t.Errorf("second line is \"%s\"; want \"%s\"", secondLine.content, dummyLines[1])
-  }
-}
+// func TestReadToList(t *testing.T) {
+//   mockScanner := CreateMockScanner(dummyLines)
+//   lineList := ReadToList(mockScanner)
+//
+//   firstLine := lineList.head
+//   if firstLine.content != dummyLines[0] {
+//     t.Errorf("first line is \"%s\"; want \"%s\"", firstLine.content, dummyLines[0])
+//   }
+//   secondLine := firstLine.next
+//   if secondLine.content != dummyLines[1] {
+//     t.Errorf("second line is \"%s\"; want \"%s\"", secondLine.content, dummyLines[1])
+//   }
+// }
 
 func TestGetLineIndentation(t *testing.T) {
   indent, err := GetLineIndentation(dummyLines[0]) //  "object:" (0)
@@ -73,8 +73,8 @@ func TestGetKeyName(t *testing.T) {
 
 func TestMakeTree(t *testing.T) {
   mockScanner := CreateMockScanner(dummyLines)
-  dummyList := ReadToList(mockScanner)
-  dummyTree, err := MakeTree(dummyList.head)
+  dummyScanner := NewFListScanner(mockScanner)
+  dummyTree, err := MakeTree(dummyScanner)
   if err != nil {
     t.Errorf("make tree returned an unexpeted error %s", err)
     return
@@ -82,9 +82,9 @@ func TestMakeTree(t *testing.T) {
   if dummyTree.ValueType != Dictionary {
     t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.ValueType)
   }
-  if dummyTree.LineReference != dummyList.head {
-    t.Errorf("head of tree is not referencing the first line in the list")
-  }
+  // if dummyTree.LineReference != dummyList.head {
+  //   t.Errorf("head of tree is not referencing the first line in the list")
+  // }
   if dummyTree.DictionaryVal["object"].ValueType != Dictionary {
     t.Errorf("exptected the type of the key 'object' to be Dictionary, got %v", dummyTree.DictionaryVal["object"].ValueType)
   }

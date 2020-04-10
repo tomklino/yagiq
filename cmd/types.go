@@ -19,8 +19,9 @@ type yamlNode struct {
   LineReference *listNode
 }
 
-type listReader interface {
-  ReadNext() (*listNode, bool)
+type listScanner interface {
+  Scan() bool
+  Line() *listNode
 }
 
 type scanner interface {
@@ -40,4 +41,5 @@ type listNode struct {
 
 type list struct {
   head *listNode
+  tail *listNode
 }

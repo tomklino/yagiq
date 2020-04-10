@@ -7,18 +7,18 @@ import (
 )
 
 // TODO should return listReader
-func ReadToList(s scanner) *list {
-  list := &list{}
-  tracer := &list.head
-  for s.Scan() {
-    currentNode := &listNode{
-      content: s.Text(),
-    }
-    *tracer = currentNode
-    tracer = &currentNode.next
-  }
-  return list
-}
+// func ReadToList(s scanner) *list {
+//   list := &list{}
+//   tracer := &list.head
+//   for s.Scan() {
+//     currentNode := &listNode{
+//       content: s.Text(),
+//     }
+//     *tracer = currentNode
+//     tracer = &currentNode.next
+//   }
+//   return list
+// }
 
 func GetLineIndentation(s string) (int, error) {
   indents := 0
@@ -44,18 +44,21 @@ func getKeyName(s string) (string, error) {
 }
 
 // TODO should accept listReader instead of *listNode
-func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
+func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
   result := make(map[string]*yamlNode)
+  l := listScanner.Line()
   baseIndent, err := GetLineIndentation(l.content)
   if err != nil {
-    return nil, nil, err
+    return nil, err
   }
 
   var indent int
-  for l != nil {
+  for listScanner.Scan() {
+    l := listScanner.Line();
+
     indent, err = GetLineIndentation(l.content)
     if err != nil {
-      return nil, nil, err
+      return nil, err
     }
     if (indent != baseIndent) {
       break;
@@ -63,42 +66,45 @@ func makeObject(l *listNode) (map[string]*yamlNode, *listNode, error) {
 
     keyName, err := getKeyName(l.content)
     if err != nil {
-      return nil, nil, err
+      return nil, err
     }
     result[keyName] = new(yamlNode)
 
     switch {
     case isLineObjectKey(l.content):
       result[keyName].ValueType = Dictionary
-      object, lineAfterObject, err := makeObject(l.next)
+      object, err := makeObject(listScanner)
       if err != nil {
-        return nil, nil, err
+        return nil, err
       }
       result[keyName].DictionaryVal = object
-      l = lineAfterObject
     case isLineIntegerKey(l.content):
       result[keyName].ValueType = Integer
       // TODO result[keyName].IntVal = <parsed int val>
     case isLineStringKey(l.content):
       result[keyName].ValueType = String
       result[keyName].StringVal = parseStringFromLine(l.content)
-      l = l.next
     }
   }
 
   if(indent > baseIndent) {
-    return nil, nil, fmt.Errorf("unexpeted indentation %d", indent)
+    return nil, fmt.Errorf("unexpeted indentation %d", indent)
   }
-  return result, l, nil
+  return result, nil
 }
 
 // TODO should accept listReader instead of *listNode
-func MakeTree(l *listNode) (*yamlNode, error) {
+func MakeTree(listScanner listScanner) (*yamlNode, error) {
   yamlHead := new(yamlNode)
+
+  if !listScanner.Scan() {
+    return nil, errors.New("no lines passed")
+  }
+  l := listScanner.Line()
 
   yamlHead.LineReference = l
   yamlHead.ValueType = Dictionary
-  object, l, err := makeObject(l)
+  object, err := makeObject(listScanner)
   yamlHead.DictionaryVal = object
   if err != nil {
     return nil, err

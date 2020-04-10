@@ -1,20 +1,20 @@
 package yagiq
 
-type FListReader struct {
+type FListScanner struct {
   scanner
   list *list
   tracer **listNode
 }
 
-func NewFListReader(s scanner) *FListReader {
+func NewFListScanner(s scanner) *FListScanner {
   list := &list{}
   tracer := &list.head
-  return &FListReader{s, list, tracer}
+  return &FListScanner{s, list, tracer}
 }
 
-func (f *FListReader) ReadNext() (*listNode, bool) {
+func (f *FListScanner) Scan() bool {
   if !f.scanner.Scan() {
-    return nil, false
+    return false
   }
   line := f.scanner.Text()
   result := &listNode{
@@ -22,5 +22,10 @@ func (f *FListReader) ReadNext() (*listNode, bool) {
   }
   *f.tracer = result
   f.tracer = &result.next
-  return result, true
+  f.list.tail = result
+  return true
+}
+
+func (f *FListScanner) Line() *listNode {
+  return f.list.tail
 }
