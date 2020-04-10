@@ -29,7 +29,6 @@ func getKeyName(s string) (string, error) {
   return strings.Split(s[indent*2:], ":")[0], nil
 }
 
-// TODO should accept listReader instead of *listNode
 func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
   result := make(map[string]*yamlNode)
   l := listScanner.Line()
@@ -39,14 +38,17 @@ func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
   }
 
   var indent int
-  for listScanner.Scan() {
+  for {
     l := listScanner.Line();
 
     indent, err = GetLineIndentation(l.content)
     if err != nil {
       return nil, err
     }
-    if (indent != baseIndent) {
+    if indent != baseIndent {
+      if indent > baseIndent {
+        return nil, fmt.Errorf("unexpeted indentation %d, base indent is %d", indent, baseIndent)
+      }
       break;
     }
 
@@ -59,6 +61,9 @@ func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
     switch {
     case isLineObjectKey(l.content):
       result[keyName].ValueType = Dictionary
+      // TODO if this is an empty object, the line should not progress
+      //      if possible, find a way to avoid this edge case
+      listScanner.Scan()
       object, err := makeObject(listScanner)
       if err != nil {
         return nil, err
@@ -71,15 +76,15 @@ func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
       result[keyName].ValueType = String
       result[keyName].StringVal = parseStringFromLine(l.content)
     }
+
+    if !listScanner.Scan() {
+      break;
+    }
   }
 
-  if(indent > baseIndent) {
-    return nil, fmt.Errorf("unexpeted indentation %d", indent)
-  }
   return result, nil
 }
 
-// TODO should accept listReader instead of *listNode
 func MakeTree(listScanner listScanner) (*yamlNode, error) {
   yamlHead := new(yamlNode)
 
@@ -94,9 +99,6 @@ func MakeTree(listScanner listScanner) (*yamlNode, error) {
   yamlHead.DictionaryVal = object
   if err != nil {
     return nil, err
-  }
-  if l != nil {
-    return nil, errors.New("unexpeted line at the end of the yaml")
   }
   return yamlHead, nil
 }

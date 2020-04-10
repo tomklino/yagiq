@@ -62,7 +62,7 @@ func TestMakeTree(t *testing.T) {
   dummyScanner := NewFListScanner(mockScanner)
   dummyTree, err := MakeTree(dummyScanner)
   if err != nil {
-    t.Errorf("make tree returned an unexpeted error %s", err)
+    t.Errorf("make tree returned an unexpeted error: %s", err)
     return
   }
   if dummyTree.ValueType != Dictionary {
