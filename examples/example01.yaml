@@ -1,0 +1,10 @@
+something: "string"
+something2: "string"
+a-list:
+  - string
+  - object: "string"
+  - bigObject:
+      sometihng: "string"
+  - "string"
+  - empty: {}
+  - json: { string: ["klklk", "klk"] }

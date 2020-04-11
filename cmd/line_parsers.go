@@ -4,6 +4,14 @@ import (
   "strings"
 )
 
+func isValStringEmtpy(s string) bool {
+  valString := strings.Trim(strings.Split(s, ":")[1], "\t ")
+  if commentIndex := strings.IndexRune(valString, '#'); commentIndex != -1 {
+    valString = strings.Trim(valString[:commentIndex], "\t ")
+  }
+  return len(valString) == 0
+}
+
 func parseStringFromLine(s string) string {
   colonIndex := strings.IndexRune(s, ':')
   valuePartString := strings.Trim(s[colonIndex+1:], "\t ")
