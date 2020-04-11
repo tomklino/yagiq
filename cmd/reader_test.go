@@ -4,18 +4,6 @@ import (
   "testing"
 )
 
-func (s *mockScanner) Scan() bool {
-  s.cursor = s.cursor + 1
-  if s.cursor >= len(s.lines) {
-    return false
-  }
-  return true
-}
-
-func (s *mockScanner) Text() string {
-  return s.lines[s.cursor]
-}
-
 func TestGetLineIndentation(t *testing.T) {
   indent, err := GetLineIndentation(dummyLines[0]) //  "object:" (0)
   if err != nil {

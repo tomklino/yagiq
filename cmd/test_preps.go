@@ -13,3 +13,15 @@ func CreateMockScanner(lines []string) *mockScanner {
   }
   return scanner
 }
+
+func (s *mockScanner) Scan() bool {
+  s.cursor = s.cursor + 1
+  if s.cursor >= len(s.lines) {
+    return false
+  }
+  return true
+}
+
+func (s *mockScanner) Text() string {
+  return s.lines[s.cursor]
+}
