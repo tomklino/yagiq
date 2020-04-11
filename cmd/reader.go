@@ -61,8 +61,10 @@ func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
     switch {
     case isLineObjectKey(l.content):
       result[keyName].ValueType = Dictionary
-      // TODO if this is an empty object, the line should not progress
-      //      if possible, find a way to avoid this edge case
+      if !isValStringEmtpy(l.content) {
+        // TODO isValStringValidJson? if so, parse it as json, if not, return an error
+        return nil, fmt.Errorf("object key found in line but object is invalid '%s'", l.content)
+      }
       listScanner.Scan()
       object, err := makeObject(listScanner)
       if err != nil {
