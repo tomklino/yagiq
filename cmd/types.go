@@ -11,12 +11,19 @@ const (
 
 type yamlNode struct {
   Key string
+  ParentNode *yamlNode
   ValueType yamlType
   StringVal string
   IntVal int
   DictionaryVal map[string]*yamlNode
   ListVal []*yamlNode
   LineReference *listNode
+}
+
+type TreeParser struct {
+  listScanner
+  root        *yamlNode
+  current     *yamlNode
 }
 
 type listScanner interface {

@@ -104,3 +104,43 @@ func MakeTree(listScanner listScanner) (*yamlNode, error) {
   }
   return yamlHead, nil
 }
+
+func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
+  node := new(yamlNode)
+  node.DictionaryVal = make(map[string]*yamlNode)
+  TreeParser := &TreeParser{
+    listScanner: listScanner,
+    root: node,
+    current: node,
+  }
+  return TreeParser, nil
+}
+
+func (t *TreeParser) ParseNextLine() error {
+  if !t.listScanner.Scan() {
+    return nil
+  }
+  l := t.listScanner.Line()
+
+  keyName, err := getKeyName(l.content)
+  if err != nil {
+    return err
+  }
+
+  n := new(yamlNode)
+  n.LineReference = l
+  switch {
+  case isLineObjectKey(l.content):
+    n.ValueType = Dictionary
+    n.DictionaryVal = make(map[string]*yamlNode)
+    n.ParentNode = t.current
+    if n.ParentNode.DictionaryVal[keyName] != nil {
+      return fmt.Errorf("duplicate key in line '%s'", l.content)
+    }
+    n.ParentNode.DictionaryVal[keyName] = n
+  }
+  if t.root == nil {
+    t.root = n
+  }
+  return nil
+}
