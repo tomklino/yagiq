@@ -107,40 +107,94 @@ func MakeTree(listScanner listScanner) (*yamlNode, error) {
 
 func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
   node := new(yamlNode)
-  node.DictionaryVal = make(map[string]*yamlNode)
   TreeParser := &TreeParser{
     listScanner: listScanner,
     root: node,
-    current: node,
+    currentParent: node,
+    parentIndent: 0,
   }
   return TreeParser, nil
 }
 
+func (t *TreeParser) connectNode(n *yamlNode) error {
+  parent := t.currentParent
+  nodeIndent, err := GetLineIndentation(n.LineReference.content)
+  if err != nil {
+    return err
+  }
+  switch parent.ValueType {
+  case Dictionary:
+    // if lineIsListItem { return fmt.Errorf("invalid yaml....")}
+    if nodeIndent != t.parentIndent + 1 {
+      return fmt.Errorf("unexpeted indentation when trying to connect node '%s'", n.LineReference.content)
+    }
+    if parent.DictionaryVal[n.Key] != nil {
+      return fmt.Errorf("duplicate key at line '%s'", n.LineReference.content)
+    }
+    parent.DictionaryVal[n.Key] = n
+  // case List:
+  default:
+    return fmt.Errorf("unexpeted parent type %v when trying to connect node", parent.ValueType)
+  }
+  return nil
+}
+
+func (t *TreeParser) setParent(n *yamlNode) {
+  t.currentParent = n
+  t.setParentIndent()
+}
+
+func (t *TreeParser) setParentIndent() {
+  if t.currentParent == t.root {
+    t.parentIndent = 0
+  } else {
+    // TODO set the line type to also hold its own indent so there will be no
+    //      need to recall GetLineIndentation every time and check for errors
+    t.parentIndent , _ = GetLineIndentation(t.currentParent.LineReference.content)
+  }
+}
+
 func (t *TreeParser) ParseNextLine() error {
   if !t.listScanner.Scan() {
-    return nil
+    return errors.New("end of input")
   }
   l := t.listScanner.Line()
 
+  // TODO smells like a function NewYamlNode(l *listNode)
+  n := new(yamlNode)
+  n.LineReference = l
   keyName, err := getKeyName(l.content)
   if err != nil {
     return err
   }
+  n.Key = keyName
 
-  n := new(yamlNode)
-  n.LineReference = l
+  indent, err := GetLineIndentation(l.content)
+  if err != nil {
+    return err
+  }
+  for indent != t.parentIndent + 1 && t.currentParent != t.root {
+    t.currentParent = t.currentParent.ParentNode
+    t.setParentIndent()
+  }
+  if indent != t.parentIndent + 1 {
+    return fmt.Errorf("unexpeted indentation in line '%s'", l.content)
+  }
+
   switch {
   case isLineObjectKey(l.content):
     n.ValueType = Dictionary
     n.DictionaryVal = make(map[string]*yamlNode)
-    n.ParentNode = t.current
-    if n.ParentNode.DictionaryVal[keyName] != nil {
-      return fmt.Errorf("duplicate key in line '%s'", l.content)
-    }
-    n.ParentNode.DictionaryVal[keyName] = n
-  }
-  if t.root == nil {
-    t.root = n
+    t.connectNode(n)
+    t.setParent(n)
+  case isLineIntegerKey(l.content):
+    n.ValueType = Integer
+    n.IntVal = 0 // TODO parse int value
+    t.connectNode(n)
+  case isLineStringKey(l.content):
+    n.ValueType = String
+    n.StringVal = parseStringFromLine(l.content)
+    t.connectNode(n)
   }
   return nil
 }
