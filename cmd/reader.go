@@ -88,21 +88,18 @@ func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
 }
 
 func MakeTree(listScanner listScanner) (*yamlNode, error) {
-  yamlHead := new(yamlNode)
-
-  if !listScanner.Scan() {
-    return nil, errors.New("no lines passed")
-  }
-  l := listScanner.Line()
-
-  yamlHead.LineReference = l
-  yamlHead.ValueType = Dictionary
-  object, err := makeObject(listScanner)
-  yamlHead.DictionaryVal = object
+  treeParser, err := NewTreeParser(listScanner)
   if err != nil {
     return nil, err
   }
-  return yamlHead, nil
+  for {
+    err = treeParser.ParseNextLine()
+    if err != nil {
+      break;
+    }
+  }
+
+  return treeParser.Root, nil
 }
 
 func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
