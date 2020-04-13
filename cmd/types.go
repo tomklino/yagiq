@@ -22,7 +22,7 @@ type yamlNode struct {
 
 type TreeParser struct {
   listScanner
-  root          *yamlNode
+  Root          *yamlNode
   currentParent *yamlNode
   parentIndent  int
 }

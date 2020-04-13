@@ -109,7 +109,7 @@ func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
   node := new(yamlNode)
   TreeParser := &TreeParser{
     listScanner: listScanner,
-    root: node,
+    Root: node,
     currentParent: node,
     parentIndent: 0,
   }
@@ -145,7 +145,7 @@ func (t *TreeParser) setParent(n *yamlNode) {
 }
 
 func (t *TreeParser) setParentIndent() {
-  if t.currentParent == t.root {
+  if t.currentParent == t.Root {
     t.parentIndent = 0
   } else {
     // TODO set the line type to also hold its own indent so there will be no
@@ -173,7 +173,7 @@ func (t *TreeParser) ParseNextLine() error {
   if err != nil {
     return err
   }
-  for indent != t.parentIndent + 1 && t.currentParent != t.root {
+  for indent != t.parentIndent + 1 && t.currentParent != t.Root {
     t.currentParent = t.currentParent.ParentNode
     t.setParentIndent()
   }
