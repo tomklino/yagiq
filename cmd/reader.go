@@ -31,64 +31,6 @@ func getKeyName(s string) (string, error) {
   return strings.Split(s[indent*2:], ":")[0], nil
 }
 
-func makeObject(listScanner listScanner) (map[string]*yamlNode, error) {
-  result := make(map[string]*yamlNode)
-  l := listScanner.Line()
-  baseIndent, err := GetLineIndentation(l.content)
-  if err != nil {
-    return nil, err
-  }
-
-  var indent int
-  for {
-    l := listScanner.Line();
-
-    indent, err = GetLineIndentation(l.content)
-    if err != nil {
-      return nil, err
-    }
-    if indent != baseIndent {
-      if indent > baseIndent {
-        return nil, fmt.Errorf("unexpeted indentation %d, base indent is %d", indent, baseIndent)
-      }
-      break;
-    }
-
-    keyName, err := getKeyName(l.content)
-    if err != nil {
-      return nil, err
-    }
-    result[keyName] = new(yamlNode)
-
-    switch {
-    case isLineObjectKey(l.content):
-      result[keyName].ValueType = Dictionary
-      if !isValStringEmtpy(l.content) {
-        // TODO isValStringValidJson? if so, parse it as json, if not, return an error
-        return nil, fmt.Errorf("object key found in line but object is invalid '%s'", l.content)
-      }
-      listScanner.Scan()
-      object, err := makeObject(listScanner)
-      if err != nil {
-        return nil, err
-      }
-      result[keyName].DictionaryVal = object
-    case isLineIntegerKey(l.content):
-      result[keyName].ValueType = Integer
-      // TODO result[keyName].IntVal = <parsed int val>
-    case isLineStringKey(l.content):
-      result[keyName].ValueType = String
-      result[keyName].StringVal = parseStringFromLine(l.content)
-    }
-
-    if !listScanner.Scan() {
-      break;
-    }
-  }
-
-  return result, nil
-}
-
 func MakeTree(listScanner listScanner) (*yamlNode, error) {
   treeParser, err := NewTreeParser(listScanner)
   if err != nil {
