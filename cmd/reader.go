@@ -6,6 +6,8 @@ import (
   "fmt"
 )
 
+var OutOfLinesError = errors.New("Out Of Lines")
+
 func GetLineIndentation(s string) (int, error) {
   indents := 0
   for i := 0; i < len(s); i += 2 {
@@ -95,6 +97,9 @@ func MakeTree(listScanner listScanner) (*yamlNode, error) {
   for {
     err = treeParser.ParseNextLine()
     if err != nil {
+      if err != OutOfLinesError {
+        return nil, err
+      }
       break;
     }
   }
@@ -108,7 +113,7 @@ func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
     listScanner: listScanner,
     Root: node,
     currentParent: node,
-    parentIndent: 0,
+    parentIndent: -1,
   }
   return TreeParser, nil
 }
@@ -120,6 +125,10 @@ func (t *TreeParser) connectNode(n *yamlNode) error {
     return err
   }
   switch parent.ValueType {
+  case None:
+    parent.ValueType = Dictionary
+    parent.DictionaryVal = make(map[string]*yamlNode)
+    return t.connectNode(n)
   case Dictionary:
     // if lineIsListItem { return fmt.Errorf("invalid yaml....")}
     if nodeIndent != t.parentIndent + 1 {
@@ -143,7 +152,7 @@ func (t *TreeParser) setParent(n *yamlNode) {
 
 func (t *TreeParser) setParentIndent() {
   if t.currentParent == t.Root {
-    t.parentIndent = 0
+    t.parentIndent = -1
   } else {
     // TODO set the line type to also hold its own indent so there will be no
     //      need to recall GetLineIndentation every time and check for errors
@@ -153,7 +162,7 @@ func (t *TreeParser) setParentIndent() {
 
 func (t *TreeParser) ParseNextLine() error {
   if !t.listScanner.Scan() {
-    return errors.New("end of input")
+    return OutOfLinesError
   }
   l := t.listScanner.Line()
 
@@ -175,7 +184,7 @@ func (t *TreeParser) ParseNextLine() error {
     t.setParentIndent()
   }
   if indent != t.parentIndent + 1 {
-    return fmt.Errorf("unexpeted indentation in line '%s'", l.content)
+    return fmt.Errorf("unexpeted indentation %d in line '%s'. expected %d", indent, l.content, t.parentIndent + 1)
   }
 
   switch {

@@ -3,7 +3,8 @@ package yagiq
 type yamlType int
 
 const (
-  String yamlType = iota
+  None yamlType = iota
+  String
   Integer
   Dictionary
   List

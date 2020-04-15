@@ -56,13 +56,12 @@ func TestMakeTree(t *testing.T) {
   if dummyTree.ValueType != Dictionary {
     t.Errorf("head of tree type is %v; want yamlType.Dictionary", dummyTree.ValueType)
   }
-  // if dummyTree.LineReference != dummyList.head {
-  //   t.Errorf("head of tree is not referencing the first line in the list")
-  // }
   if dummyTree.DictionaryVal["object"].ValueType != Dictionary {
     t.Errorf("exptected the type of the key 'object' to be Dictionary, got %v", dummyTree.DictionaryVal["object"].ValueType)
   }
-
+  if dummyTree.DictionaryVal["object"].LineReference.content != dummyLines[0] {
+    t.Errorf("expted the line reference of object to be '%s'", dummyLines[0])
+  }
   dummyObject := dummyTree.DictionaryVal["object"].DictionaryVal
   if dummyObject["key"].ValueType != String {
     t.Errorf("exptected the type of 'object.key' to be string")
