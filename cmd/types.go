@@ -10,6 +10,8 @@ const (
   List
 )
 
+type yamlPath []string
+
 type yamlNode struct {
   Key string
   ParentNode *yamlNode
