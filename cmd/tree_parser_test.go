@@ -54,8 +54,34 @@ func TestSetParentIndent(t *testing.T) {
   tree, _ := NewTreeParser(dummyScanner)
 
   tree.connectNode(dummyNode)
+  tree.setParent(dummyNode)
   tree.setParentIndent()
   if tree.parentIndent != 0 {
-    t.Errorf("expected the parent indent to be set to 0 after connecting the dummy node to it")
+    t.Errorf("expected the parent indent to be set to 0 after connecting the dummy node to it, but got %d", tree.parentIndent)
+  }
+}
+
+func TestExistsInTree(t *testing.T) {
+  path1 := yamlPath{"object", "key"}
+  path2 := yamlPath{"object", "another"}
+
+  mockScanner := CreateMockScanner(dummyLines)
+  dummyScanner := NewFListScanner(mockScanner)
+  tree, _ := NewTreeParser(dummyScanner)
+
+  //parse the first 2 lines, ignore the third for now
+  tree.ParseNextLine()
+  tree.ParseNextLine()
+
+  if tree.existsInTree(path1) != true {
+    t.Errorf("expected the path '%s.%s' to exist", path1[0], path1[1])
+  }
+  if tree.existsInTree(path2) != false {
+    t.Errorf("expeted the path '%s.%s' to not exist", path2[0], path2[1])
+  }
+
+  tree.ParseNextLine()
+  if tree.existsInTree(path2) != true {
+    t.Errorf("expeted the path '%s.%s' to exist", path2[0], path2[1])
   }
 }

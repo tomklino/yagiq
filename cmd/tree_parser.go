@@ -57,6 +57,18 @@ func (t *TreeParser) setParentIndent() {
   }
 }
 
+func (t *TreeParser) existsInTree(path yamlPath) bool {
+  trace := t.Root
+  for _, key := range path {
+    if node, ok := trace.DictionaryVal[key]; ok {
+      trace = node
+    } else {
+      return false
+    }
+  }
+  return true
+}
+
 func (t *TreeParser) ParseNextLine() error {
   if !t.listScanner.Scan() {
     return OutOfLinesError
