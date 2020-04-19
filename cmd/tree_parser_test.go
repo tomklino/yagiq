@@ -85,3 +85,27 @@ func TestExistsInTree(t *testing.T) {
     t.Errorf("expeted the path '%s.%s' to exist", path2[0], path2[1])
   }
 }
+
+func TestGetNodeAtPath(t *testing.T) {
+  path1 := yamlPath{"object", "key"}
+
+  mockScanner := CreateMockScanner(dummyLines)
+  dummyScanner := NewFListScanner(mockScanner)
+  tree, _ := NewTreeParser(dummyScanner)
+
+  node, err := tree.GetNodeAtPath(path1)
+  if err != nodeNotFoundError {
+    t.Errorf("exptected to get a 'node not found error', got '%s'", err)
+  }
+  //parse the first 2 lines, ignore the third for now
+  tree.ParseNextLine()
+  tree.ParseNextLine()
+
+  node, err = tree.GetNodeAtPath(path1)
+  if err != nil {
+    t.Errorf("expected to find path '%s.%s' without an error. got: %s", path1[0], path1[1], err)
+  }
+  if node.Key != "key" {
+    t.Errorf("exected the found node to have key of 'key', got '%s'", node.Key)
+  }
+}

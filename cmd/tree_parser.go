@@ -4,6 +4,8 @@ import (
   "fmt"
 )
 
+var nodeNotFoundError = fmt.Errorf("node not found")
+
 func NewTreeParser(listScanner listScanner) (*TreeParser, error) {
   node := new(yamlNode)
   TreeParser := &TreeParser{
@@ -67,6 +69,18 @@ func (t *TreeParser) existsInTree(path yamlPath) bool {
     }
   }
   return true
+}
+
+func (t *TreeParser) GetNodeAtPath(path yamlPath) (*yamlNode, error) {
+  trace := t.Root
+  for _, key := range path {
+    if node, ok := trace.DictionaryVal[key]; ok {
+      trace = node
+    } else {
+      return nil, nodeNotFoundError
+    }
+  }
+  return trace, nil
 }
 
 func (t *TreeParser) ParseNextLine() error {
